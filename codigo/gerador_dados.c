@@ -17,7 +17,7 @@ int tratamento_tamanho(char tam){
 
     switch (tam){
         case 'P':
-            n = 1000;
+            n = 5;
             break;
 
         case 'M':
@@ -109,7 +109,7 @@ void gerador_arquivo(char cod_tam, char cod_cenario){
 
     char nome_arquivo[100];
     snprintf(nome_arquivo, sizeof(nome_arquivo),
-                "%s_%s.bin", nome_tamanho, nome_cenario);
+                "%s_%sTESTE.bin", nome_tamanho, nome_cenario);
     
     // Escrita no arquivo binário            
     FILE *arquivo = fopen(nome_arquivo, "wb");

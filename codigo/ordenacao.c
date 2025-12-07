@@ -7,7 +7,8 @@
 /*--------------- PROTÓTIPOS ---------------*/
 
 // Algoritmos de Sorting
-void quick_sort(int arr[], int low, int high);
+void insertion_sort(int arr[], int n, long long *comparacoes, long long *swaps);
+void bubble_sort_otimizado(int arr[], int n, long long *comparacoes, long long *trocas);
 
 // Funções de Carregamento e Teste
 int* carregar_arquivo_memoria(const char *nome_arquivo, int *tamanho_ptr);
@@ -15,6 +16,65 @@ void executar_teste(const char *nome_arquivo, const char *nome_algoritmo);
 
 
 /*--------------- ALGORITMOS DE SORTING ---------------*/
+
+//1. Insertion Sort
+void insertion_sort(int arr[], int n, long long *comparacoes, long long *swaps) {
+  *comparacoes = 0;
+  *swaps = 0;
+
+  for (int i = 1; i < n; i++) { 
+        int key = arr[i];
+        int j = i - 1;
+
+        while (j >= 0){
+          (*comparacoes)++;
+
+          if (arr[j] > key){
+            arr[j + 1] = arr[j];
+            (*swaps)++;
+            j = j - 1;
+        } else{
+          break;
+        }
+    }
+
+    if (j != i - 1){
+      (*swaps)++;
+    }
+
+    arr[j + 1] = key;
+  }
+}
+
+
+  //2. Bubble Sort Otimizado
+  void bubble_sort_otimizado(int arr[], int n, long long *comparacoes, long long *trocas) {
+      *comparacoes = 0;
+      *trocas = 0;
+      int i, j;
+      int trocou = 0; // Flag para verificar se teve troca
+      int aux;
+
+      for (i = 0; i < n - 1; i++) {
+          trocou = 0; 
+          for (j = 0; j < n - 1 - i; j++) {
+              (*comparacoes)++;
+              if (arr[j] > arr[j + 1]) {
+                aux = arr[j];
+                arr[j] =  arr[j + 1];
+                arr[j + 1] = aux;
+                (*trocas)++;
+                trocou = 1; 
+              }
+          }
+        
+          // Otimização
+          if (trocou == 0) {
+              break; 
+          }
+      }
+  }
+
 
 
 /*--------------- CARREGAMENTO DE ARQUIVO ---------------*/
@@ -75,29 +135,37 @@ void executar_teste(const char *nome_arquivo, const char *nome_algoritmo) {
     
     memcpy(vetor_teste, vetor_original, tamanho_vetor * sizeof(int));
 
+    // Variáveis de controle
     clock_t inicio, fim;
     double tempo_execucao;
+
+    long long comparacoes = 0;
+    long long swaps = 0;
 
     // Cronômetro
     printf("Testando %s em %s (Tamanho: %d)...\n", nome_algoritmo, nome_arquivo, tamanho_vetor);
     inicio = clock();
     
     // Chamada das funções de sorting
-    if (strcmp(nome_algoritmo, "Selection Sort") == 0) {
-        //quick_sort(vetor_teste, 0, tamanho_vetor - 1);
-    } 
-    
     if (strcmp(nome_algoritmo, "Insertion Sort") == 0) {
-
+        insertion_sort(vetor_teste, tamanho_vetor, &comparacoes, &swaps);
     }
-    /* Adicione os outros algoritmos aqui */
+    else if (strcmp(nome_algoritmo, "Bubble Sort Otimizado") == 0) {
+        bubble_sort_otimizado(vetor_teste, tamanho_vetor, &comparacoes, &swaps);
+    } 
+    else printf("Algoritmo não reconhecido.\n");
+
     
     fim = clock();
 
     // Cálculo do tempo de execução
     tempo_execucao = (double)(fim - inicio) / CLOCKS_PER_SEC;
-    printf("Tempo de execução: %.4f segundos\n", tempo_execucao);
-    
+   
+    // Exibição dos resultados
+    printf("Tempo de execucao: %.15f segundos\n", tempo_execucao); 
+    printf("Numero de comparacoes: %lld\n", comparacoes);
+    printf("Numero de trocas: %lld\n", swaps);  
+
     // Liberação de memória
     free(vetor_teste);
     free(vetor_original); 
@@ -109,24 +177,22 @@ void executar_teste(const char *nome_arquivo, const char *nome_algoritmo) {
 int main() {
     // Lista dos arquivos
     const char *arquivos[] = {
-        "grande_aleatorio.bin",
-        "grande_crescente.bin",
-        "grande_decrescente.bin",
-        "medio_aleatorio.bin",
-        "medio_crescente.bin",
-        "medio_decrescente.bin",
-        "pequeno_aleatorio.bin",
-        "pequeno_crescente.bin",
-        "pequeno_decrescente.bin"
+        "../dados/grande_aleatorio.bin",
+        "../dados/grande_crescente.bin",
+        "../dados/grande_decrescente.bin",
+        "../dados/medio_aleatorio.bin",
+        "../dados/medio_crescente.bin",
+        "../dados/medio_decrescente.bin",
+        "../dados/pequeno_aleatorio.bin",
+        "../dados/pequeno_crescente.bin",
+        "../dados/pequeno_decrescente.bin"
     };
     int num_arquivos = sizeof(arquivos) / sizeof(arquivos[0]);
     
     // Lista dos algoritmos 
-    const char *algoritmos[] = {
-        "Selection Sort",
-        "Insertion Sort",
-        "Bubble Sort",
-        "Bubble Sort Otimizado"
+    const char *algoritmos[] = {  
+      "Selection Sort",
+      "Bubble Sort Otimizado"
     };
     int num_algoritmos = sizeof(algoritmos) / sizeof(algoritmos[0]);
   
@@ -135,7 +201,7 @@ int main() {
     char continuar = 's';
 
 
-    printf("--- Iniciando Teste Empírico de Algoritmos de Ordenação ---\n\n");
+    printf("--- Iniciando Teste Empirico de Algoritmos de Ordenacao ---\n\n");
 
     while (continuar == 's' || continuar == 'S') {
         
@@ -145,13 +211,24 @@ int main() {
             printf("| %d - %s\n", i + 1, arquivos[i]);
         }
         printf("Selecione (1 a %d): ", num_arquivos);
-        
+        if (scanf(" %d", &escolha_arquivo) != 1 || escolha_arquivo < 1 || escolha_arquivo > num_arquivos) {
+            printf("Seleção de arquivo inválida! Tente novamente.\n");
+          
+            while (getchar() != '\n'); 
+            continue; 
+        }
+
         // Menu de algoritmos
         printf("\n| Escolha o Algoritmo de Ordenação: |\n");
         for (int i = 0; i < num_algoritmos; i++) {
             printf("| %d - %s\n", i + 1, algoritmos[i]);
         }
         printf("Selecione (1 a %d): ", num_algoritmos);
+        if (scanf(" %d", &escolha_algoritmo) != 1 || escolha_algoritmo < 1 || escolha_algoritmo > num_algoritmos) {
+            printf("Seleção de algoritmo inválida! Tente novamente.\n");
+            while (getchar() != '\n'); 
+            continue; 
+        }
 
         printf("\n============================================\n");
         
