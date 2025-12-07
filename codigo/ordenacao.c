@@ -76,6 +76,52 @@ void insertion_sort(int arr[], int n, long long *comparacoes, long long *swaps) 
   }
 
 
+    //3. Selection Sort
+    void selection_sort(int arr[], int n, long long *comparacoes, long long *trocas) {
+        *comparacoes = 0;
+        *trocas = 0;
+
+        for (int i = 0; i < n - 1; i++) {
+            int min_idx = i;
+
+            // Encontra o menor elemento no restante do vetor
+            for (int j = i + 1; j < n; j++) {
+                (*comparacoes)++;
+                if (arr[j] < arr[min_idx]) {
+                    min_idx = j;
+                }
+            }
+
+            // Troca o menor elemento com a posição atual
+            if (min_idx != i) {
+                int temp = arr[i];
+                arr[i] = arr[min_idx];
+                arr[min_idx] = temp;
+                (*trocas)++;
+            }
+        }
+    }
+
+    //4. Bubble Sort (padrão)
+    void bubble_sort(int arr[], int n, long long *comparacoes, long long *trocas) {
+        *comparacoes = 0;
+        *trocas = 0;
+
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - 1 - i; j++) {
+                (*comparacoes)++;
+                if (arr[j] > arr[j + 1]) {
+                    int temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                    (*trocas)++;
+                }
+            }
+        }
+    }
+
+
+
 
 /*--------------- CARREGAMENTO DE ARQUIVO ---------------*/
 
@@ -152,6 +198,12 @@ void executar_teste(const char *nome_arquivo, const char *nome_algoritmo) {
     }
     else if (strcmp(nome_algoritmo, "Bubble Sort Otimizado") == 0) {
         bubble_sort_otimizado(vetor_teste, tamanho_vetor, &comparacoes, &swaps);
+    }
+    else if (strcmp(nome_algoritmo, "Selection Sort") == 0) {
+        selection_sort(vetor_teste, tamanho_vetor, &comparacoes, &swaps);
+    } 
+    else if (strcmp(nome_algoritmo, "Bubble Sort") == 0) {
+        bubble_sort(vetor_teste, tamanho_vetor, &comparacoes, &swaps);
     } 
     else printf("Algoritmo não reconhecido.\n");
 
@@ -192,7 +244,9 @@ int main() {
     // Lista dos algoritmos 
     const char *algoritmos[] = {  
       "Selection Sort",
-      "Bubble Sort Otimizado"
+      "Bubble Sort Otimizado",
+      "Insertion Sort",
+      "Bubble Sort"
     };
     int num_algoritmos = sizeof(algoritmos) / sizeof(algoritmos[0]);
   

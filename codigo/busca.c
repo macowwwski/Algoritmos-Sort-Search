@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include <time.h>
+#include <string.h>
 
 
 /*--------------- ALGORITMOS DE BUSCA ---------------*/
@@ -16,6 +17,35 @@ int busca_sequencial(int arr[], int n, int elemento, long long *comparacoes) {
     }
     return -1; 
 }
+
+//2. Busca Binária
+int busca_binaria(int arr[], int n, int elemento, long long *comparacoes) {
+    *comparacoes = 0;
+
+    int esquerda = 0;
+    int direita = n - 1;
+
+    while (esquerda <= direita) {
+        int meio = esquerda + (direita - esquerda) / 2;
+
+        (*comparacoes)++;
+
+        if (arr[meio] == elemento) {
+            return meio;  // Encontrou
+        }
+
+        (*comparacoes)++;
+
+        if (arr[meio] < elemento) {
+            esquerda = meio + 1;  // busca na direita
+        } else {
+            direita = meio - 1;   // busca na esquerda
+        }
+    }
+
+    return -1;  // Não encontrado
+}
+
 
 
 
@@ -91,9 +121,9 @@ void executar_teste(const char *nome_arquivo, const char *nome_algoritmo, const 
     if (strcmp(nome_algoritmo, "Busca Sequencial") == 0) {
         busca_sequencial(vetor_teste, tamanho_vetor, elemento, &comparacoes);
     }
-    /*else if (strcmp(nome_algoritmo, "Busca Binária") == 0) {
-        bubble_sort_otimizado(vetor_teste, tamanho_vetor, &comparacoes);
-    } */
+    else if (strcmp(nome_algoritmo, "Busca Binária") == 0) {
+        busca_binaria(vetor_teste, tamanho_vetor, elemento, &comparacoes);
+    }
     else printf("Algoritmo não reconhecido.\n");
 
     
@@ -113,3 +143,89 @@ void executar_teste(const char *nome_arquivo, const char *nome_algoritmo, const 
 
 
 /*--------------- FUNÇÃO MAIN ---------------*/
+
+int main() {
+    // Lista dos arquivos
+    const char *arquivos[] = {
+        "../dados/grande_aleatorio.bin",
+        "../dados/grande_crescente.bin",
+        "../dados/grande_decrescente.bin",
+        "../dados/medio_aleatorio.bin",
+        "../dados/medio_crescente.bin",
+        "../dados/medio_decrescente.bin",
+        "../dados/pequeno_aleatorio.bin",
+        "../dados/pequeno_crescente.bin",
+        "../dados/pequeno_decrescente.bin"
+    };
+    int num_arquivos = sizeof(arquivos) / sizeof(arquivos[0]);
+    
+    // Lista dos algoritmos 
+    const char *algoritmos[] = {  
+      "Busca Sequencial",
+      "Busca Binária"
+    };
+    int num_algoritmos = sizeof(algoritmos) / sizeof(algoritmos[0]);
+  
+    int escolha_arquivo = -1;
+    int escolha_algoritmo = -1;
+    char continuar = 's';
+    int elemento;
+
+
+    printf("--- Iniciando Teste Empirico de Algoritmos de Ordenacao ---\n\n");
+
+    while (continuar == 's' || continuar == 'S') {
+        
+        // Menu de arquivos
+        printf("\n| Escolha o Arquivo de Entrada: |\n");
+        for (int i = 0; i < num_arquivos; i++) {
+            printf("| %d - %s\n", i + 1, arquivos[i]);
+        }
+        printf("Selecione (1 a %d): ", num_arquivos);
+        if (scanf(" %d", &escolha_arquivo) != 1 || escolha_arquivo < 1 || escolha_arquivo > num_arquivos) {
+            printf("Seleção de arquivo inválida! Tente novamente.\n");
+          
+            while (getchar() != '\n'); 
+            continue; 
+        }
+
+        // Menu de algoritmos
+        printf("\n| Escolha o Algoritmo de busca: |\n");
+        for (int i = 0; i < num_algoritmos; i++) {
+            printf("| %d - %s\n", i + 1, algoritmos[i]);
+        }
+        printf("Selecione (1 a %d): ", num_algoritmos);
+        if (scanf(" %d", &escolha_algoritmo) != 1 || escolha_algoritmo < 1 || escolha_algoritmo > num_algoritmos) {
+            printf("Seleção de algoritmo inválida! Tente novamente.\n");
+            while (getchar() != '\n'); 
+            continue; 
+        }
+
+        // Menu do elemento a ser buscado
+        printf("\nDigite o elemento que deseja buscar: ");
+        if (scanf("%d", &elemento) != 1) {
+            printf("Entrada inválida! Tente novamente.\n");
+            while (getchar() != '\n'); 
+            continue;
+        }
+
+        printf("\n============================================\n");
+        
+        // Execução do teste       
+        const char *arquivo_selecionado = arquivos[escolha_arquivo - 1];
+        const char *algoritmo_selecionado = algoritmos[escolha_algoritmo - 1];
+        
+        executar_teste(arquivo_selecionado, algoritmo_selecionado, elemento);
+        
+        printf("============================================\n");
+        
+        // Continuidade no teste
+        printf("\nDeseja executar outro teste? (s/n): ");
+        if (scanf(" %c", &continuar) != 1) {
+             continuar = 'n'; 
+        }
+    }
+
+    printf("\nTestes encerrados.\n");
+    return 0;
+}
